@@ -1,0 +1,249 @@
+<main class="auth-page">
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <div class="auth-container">
+    <aside class="hero-panel" aria-label="Trimfit Platform Highlights">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="brand-badge">
+          <!-- <span class="brand-icon"><i class="bi bi-lightning-charge-fill"></i></span> -->
+          <span class="brand-name">TRIMFIT <span class="accent-text">PRO</span></span>
+        </div>
+
+        <div class="hero-main-text">
+          <span class="tag-pill"><i class="bi bi-fire"></i> NEXT-GEN FITNESS PLATFORM</span>
+          <h1 class="hero-title">
+            TRANSFORM YOUR BODY. <br>
+            <span class="pink-blue-gradient-text">ELEVATE YOUR LIFE.</span>
+          </h1>
+          <p class="hero-subtitle">
+            Join thousands of dedicated athletes achieving peak performance with custom training plans, live tracking, and real-time health analytics.
+          </p>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-value">50K+</span>
+            <span class="stat-label">Active Members</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">99.4%</span>
+            <span class="stat-label">Goal Success</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">4.9★</span>
+            <span class="stat-label">User Rating</span>
+          </div>
+        </div>
+
+        <div class="quote-card">
+          <div class="quote-icon"><i class="bi bi-quote"></i></div>
+          <p class="quote-text">"Trimfit completely redefined my training routine. The data insights and community drive me every day."</p>
+          <div class="quote-author">
+            <div class="author-avatar"><i class="bi bi-person-fill"></i></div>
+            <div>
+              <span class="author-name">Marcus Vance</span>
+              <span class="author-title">Hyrox Athlete & Coach</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="form-panel">
+      <div class="glass-card">
+        <header class="card-header">
+          <div class="mobile-brand d-lg-none">
+            <i class="bi bi-lightning-charge-fill accent-icon"></i> TRIMFIT
+          </div>
+          <h2 class="form-title">Start Your Journey</h2>
+          <p class="form-subtitle">Create your free account & claim your 14-day pass</p>
+        </header>
+
+        <div *ngIf="submitSuccess" class="alert-toast success-toast" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div>
+            <strong>Account Created Successfully!</strong>
+            <p>Account created. Sign in to open your dashboard.</p>
+          </div>
+        </div>
+        <div *ngIf="authError" class="field-error" role="alert">
+          <i class="bi bi-exclamation-circle"></i> {{ authError }}
+        </div>
+
+        <form [formGroup]="signupForm" (ngSubmit)="onSubmit()" novalidate class="auth-form">
+          <div class="form-group">
+            <label for="fullName" class="form-label">Full Name</label>
+            <div class="input-wrapper" [class.is-invalid]="fullNameControl?.invalid && fullNameControl?.touched">
+              <i class="bi bi-person input-icon" aria-hidden="true"></i>
+              <input
+                id="fullName"
+                type="text"
+                formControlName="fullName"
+                placeholder="Ajewole Ayomide"
+                class="form-control"
+                autocomplete="name"
+                [attr.aria-invalid]="fullNameControl?.invalid && fullNameControl?.touched"
+                aria-describedby="fullNameError"
+              />
+              <i *ngIf="fullNameControl?.valid && fullNameControl?.touched" class="bi bi-check-lg valid-icon"></i>
+            </div>
+            <div *ngIf="fullNameControl?.invalid && fullNameControl?.touched" id="fullNameError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="fullNameControl?.errors?.['required']">Full name is required.</span>
+              <span *ngIf="fullNameControl?.errors?.['minlength']">Name must be at least 2 characters.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <div class="input-wrapper" [class.is-invalid]="emailControl?.invalid && emailControl?.touched">
+              <i class="bi bi-envelope input-icon" aria-hidden="true"></i>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="ajewoleayomide@example.com"
+                class="form-control"
+                autocomplete="email"
+                [attr.aria-invalid]="emailControl?.invalid && emailControl?.touched"
+                aria-describedby="emailError"
+              />
+              <i *ngIf="emailControl?.valid && emailControl?.touched" class="bi bi-check-lg valid-icon"></i>
+            </div>
+            <div *ngIf="emailControl?.invalid && emailControl?.touched" id="emailError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="emailControl?.errors?.['required']">Email address is required.</span>
+              <span *ngIf="emailControl?.errors?.['email']">Please enter a valid email format.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password" class="form-label">Password</label>
+            <div class="input-wrapper" [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched">
+              <i class="bi bi-shield-lock input-icon" aria-hidden="true"></i>
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••••••"
+                class="form-control"
+                autocomplete="new-password"
+                [attr.aria-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                aria-describedby="passwordError passwordRequirements"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              >
+                <i [class]="showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+              </button>
+            </div>
+
+            <div *ngIf="passwordControl?.value" class="password-meter-wrapper">
+              <div class="meter-header">
+                <span>Strength:</span>
+                <span class="strength-label" [style.color]="passwordStrengthColor">{{ passwordStrengthLabel }}</span>
+              </div>
+              <div class="meter-bar-track">
+                <div
+                  class="meter-bar-fill"
+                  [style.width.%]="passwordStrengthScore"
+                  [style.background-color]="passwordStrengthColor"
+                ></div>
+              </div>
+
+              <div id="passwordRequirements" class="password-check-list">
+                <span class="check-item" [class.passed]="hasMinLength">
+                  <i [class]="hasMinLength ? 'bi bi-check-circle-fill' : 'bi bi-circle'"></i> 8+ Characters
+                </span>
+                <span class="check-item" [class.passed]="hasCapitalLetter">
+                  <i [class]="hasCapitalLetter ? 'bi bi-check-circle-fill' : 'bi bi-circle'"></i> Capital Letter
+                </span>
+                <span class="check-item" [class.passed]="hasNumber">
+                  <i [class]="hasNumber ? 'bi bi-check-circle-fill' : 'bi bi-circle'"></i> Number
+                </span>
+              </div>
+            </div>
+
+            <div *ngIf="passwordControl?.invalid && passwordControl?.touched" id="passwordError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="passwordControl?.errors?.['required']">Password is required.</span>
+              <span *ngIf="passwordControl?.errors?.['minlength'] || passwordControl?.errors?.['pattern']">
+                Password must be at least 8 characters long with 1 capital letter and 1 number.
+              </span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword" class="form-label">Confirm Password</label>
+            <div class="input-wrapper" [class.is-invalid]="confirmPasswordControl?.invalid && confirmPasswordControl?.touched">
+              <i class="bi bi-shield-check input-icon" aria-hidden="true"></i>
+              <input
+                id="confirmPassword"
+                [type]="showConfirmPassword ? 'text' : 'password'"
+                formControlName="confirmPassword"
+                placeholder="••••••••••••"
+                class="form-control"
+                autocomplete="new-password"
+                [attr.aria-invalid]="confirmPasswordControl?.invalid && confirmPasswordControl?.touched"
+                aria-describedby="confirmPasswordError"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="toggleConfirmPasswordVisibility()"
+                [attr.aria-label]="showConfirmPassword ? 'Hide password' : 'Show password'"
+              >
+                <i [class]="showConfirmPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+              </button>
+            </div>
+            <div *ngIf="confirmPasswordControl?.invalid && confirmPasswordControl?.touched" id="confirmPasswordError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="confirmPasswordControl?.errors?.['required']">Please confirm your password.</span>
+              <span *ngIf="confirmPasswordControl?.errors?.['passwordMismatch']">Passwords do not match.</span>
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="custom-checkbox">
+              <input
+                type="checkbox"
+                formControlName="agreeTerms"
+                [attr.aria-invalid]="agreeTermsControl?.invalid && agreeTermsControl?.touched"
+                aria-describedby="termsError"
+              />
+              <span class="checkmark"><i class="bi bi-check"></i></span>
+              <span class="checkbox-text">
+                I agree to the <a href="javascript:void(0)" class="link-accent">Terms of Service</a> &amp; <a href="javascript:void(0)" class="link-accent">Privacy Policy</a>
+              </span>
+            </label>
+            <div *ngIf="agreeTermsControl?.invalid && agreeTermsControl?.touched" id="termsError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span>You must accept the terms and conditions to proceed.</span>
+            </div>
+          </div>
+
+          <button
+            type="submit"
+            class="btn-primary-gradient"
+            [disabled]="isSubmitting"
+          >
+            <span *ngIf="!isSubmitting">CREATE ACCOUNT <i class="bi bi-arrow-right"></i></span>
+            <span *ngIf="isSubmitting" class="spinner-wrapper">
+              <span class="spinner" aria-hidden="true"></span>
+              <span>Creating Account...</span>
+            </span>
+          </button>
+        </form>
+
+        <footer class="card-footer">
+          <p>Already have an account? <a [routerLink]="['/signin']" class="link-highlight">Sign In</a></p>
+        </footer>
+      </div>
+    </section>
+  </div>
+</main>

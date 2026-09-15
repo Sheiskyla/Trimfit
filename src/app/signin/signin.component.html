@@ -1,0 +1,203 @@
+<main class="auth-page">
+  <div class="ambient-glow glow-top-left"></div>
+  <div class="ambient-glow glow-bottom-right"></div>
+
+  <div class="auth-container">
+    <aside class="hero-panel" aria-label="Trimfit Platform Highlights">
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="brand-badge">
+          <!-- <span class="brand-icon"><i class="bi bi-lightning-charge-fill"></i></span> -->
+          <span class="brand-name">TRIMFIT <span class="accent-text">PRO</span></span>
+        </div>
+
+        <div class="hero-main-text">
+          <span class="tag-pill"><i class="bi bi-trophy"></i> WELCOME BACK, CHAMPION</span>
+          <h1 class="hero-title">
+            READY TO CRUSH <br>
+            <span class="pink-blue-gradient-text">TODAY'S WORKOUT?</span>
+          </h1>
+          <p class="hero-subtitle">
+            Log in to access your customized workout schedules, biometric metrics, trainer feedback, and active community challenges.
+          </p>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-card">
+            <span class="stat-value">12.4k</span>
+            <span class="stat-label">Calories Burned</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">24</span>
+            <span class="stat-label">Day Streak</span>
+          </div>
+          <div class="stat-card">
+            <span class="stat-value">Top 5%</span>
+            <span class="stat-label">Global Rank</span>
+          </div>
+        </div>
+
+        <div class="quote-card">
+          <div class="quote-icon"><i class="bi bi-lightning-fill"></i></div>
+          <p class="quote-text">"Consistency is where championship habits are forged. Show up today and conquer your limits."</p>
+          <div class="quote-author">
+            <div class="author-avatar"><i class="bi bi-award-fill"></i></div>
+            <div>
+              <!-- <span class="author-name">Elena Rostova</span>
+              <span class="author-title">Head Strength Coach</span> -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <section class="form-panel">
+      <div class="glass-card">
+        <header class="card-header">
+          <div class="mobile-brand d-lg-none">
+            <i class="bi bi-lightning-charge-fill accent-icon"></i> TRIMFIT
+          </div>
+          <h2 class="form-title">Sign In</h2>
+          <p class="form-subtitle">Welcome back! Please enter your details</p>
+        </header>
+
+        <div *ngIf="submitSuccess" class="alert-toast success-toast" role="alert">
+          <i class="bi bi-check-circle-fill"></i>
+          <div>
+            <strong>Login Successful!</strong>
+            <p>Welcome back! Opening your dashboard...</p>
+          </div>
+        </div>
+        <div *ngIf="authError" class="auth-error-alert" role="alert" aria-live="assertive">
+          <i class="bi bi-exclamation-circle"></i> {{ authError }}
+        </div>
+
+        <form [formGroup]="signinForm" (ngSubmit)="onSubmit()" novalidate class="auth-form">
+          <div class="form-group">
+            <label for="email" class="form-label">Email Address</label>
+            <div class="input-wrapper" [class.is-invalid]="emailControl?.invalid && emailControl?.touched">
+              <i class="bi bi-envelope input-icon" aria-hidden="true"></i>
+              <input
+                id="email"
+                type="email"
+                formControlName="email"
+                placeholder="ajewoleayomide@example.com"
+                class="form-control"
+                autocomplete="email"
+                [attr.aria-invalid]="emailControl?.invalid && emailControl?.touched"
+                aria-describedby="emailError"
+              />
+              <i *ngIf="emailControl?.valid && emailControl?.touched" class="bi bi-check-lg valid-icon"></i>
+            </div>
+            <div *ngIf="emailControl?.invalid && emailControl?.touched" id="emailError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="emailControl?.errors?.['required']">Email address is required.</span>
+              <span *ngIf="emailControl?.errors?.['email']">Please enter a valid email format.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="password" class="form-label">Password</label>
+              <button
+                type="button"
+                class="forgot-password-link"
+                (click)="openForgotPasswordModal()"
+              >
+                Forgot Password?
+              </button>
+            </div>
+            <div class="input-wrapper" [class.is-invalid]="passwordControl?.invalid && passwordControl?.touched">
+              <i class="bi bi-shield-lock input-icon" aria-hidden="true"></i>
+              <input
+                id="password"
+                [type]="showPassword ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="••••••••••••"
+                class="form-control"
+                autocomplete="current-password"
+                [attr.aria-invalid]="passwordControl?.invalid && passwordControl?.touched"
+                aria-describedby="passwordError"
+              />
+              <button
+                type="button"
+                class="password-toggle-btn"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+              >
+                <i [class]="showPassword ? 'bi bi-eye-slash-fill' : 'bi bi-eye-fill'"></i>
+              </button>
+            </div>
+            <div *ngIf="passwordControl?.invalid && passwordControl?.touched" id="passwordError" class="field-error" role="alert">
+              <i class="bi bi-exclamation-circle"></i>
+              <span *ngIf="passwordControl?.errors?.['required']">Password is required.</span>
+            </div>
+          </div>
+
+          <div class="form-group checkbox-group">
+            <label class="custom-checkbox">
+              <input
+                type="checkbox"
+                formControlName="rememberMe"
+              />
+              <span class="checkmark"><i class="bi bi-check"></i></span>
+              <span class="checkbox-text">Keep me signed in on this device</span>
+            </label>
+          </div>
+
+          <button
+            type="submit"
+            class="btn-primary-gradient"
+          >
+            SIGN IN <i class="bi bi-arrow-right"></i>
+          </button>
+        </form>
+
+        <footer class="card-footer">
+          <p>Don't have an account? <a [routerLink]="['/signup']" class="link-highlight">Sign Up</a></p>
+        </footer>
+      </div>
+    </section>
+  </div>
+
+  <div *ngIf="showForgotModal" class="modal-backdrop" role="dialog" aria-labelledby="modalTitle" aria-modal="true">
+    <div class="modal-card">
+      <header class="modal-header">
+        <h3 id="modalTitle" class="modal-title">Reset Your Password</h3>
+        <button type="button" class="close-btn" (click)="closeForgotPasswordModal()" aria-label="Close modal">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+      <div class="modal-body">
+        <p *ngIf="!forgotPasswordSent">Enter your account email address below to receive a secure password reset link.</p>
+        
+        <div *ngIf="!forgotPasswordSent" class="form-group">
+          <label for="resetEmail" class="form-label">Account Email</label>
+          <div class="input-wrapper">
+            <i class="bi bi-envelope input-icon"></i>
+            <input
+              id="resetEmail"
+              type="email"
+              [(ngModel)]="forgotEmail"
+              [ngModelOptions]="{standalone: true}"
+              placeholder="ajewoleayomide@example.com"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <div *ngIf="forgotPasswordSent" class="alert-toast success-toast">
+          <i class="bi bi-check-circle-fill"></i>
+          <div>
+            <strong>Reset Link Sent!</strong>
+            <p>Check your inbox for password reset instructions.</p>
+          </div>
+        </div>
+      </div>
+      <footer *ngIf="!forgotPasswordSent" class="modal-footer">
+        <button type="button" class="btn-secondary" (click)="closeForgotPasswordModal()">Cancel</button>
+        <button type="button" class="btn-primary-gradient small" (click)="sendPasswordReset()">SEND LINK</button>
+      </footer>
+    </div>
+  </div>
+</main>

@@ -1,0 +1,471 @@
+<main class="dash">
+  <div class="aura aura-a"></div>
+  <div class="aura aura-b"></div>
+
+  <div *ngIf="toastText" class="toast" role="status">
+    <i class="bi bi-check2-circle"></i>
+    <span class="toast-text">{{ toastText }}</span>
+    <button *ngIf="toastActionLabel" type="button" class="toast-action" (click)="undoDelete()">
+      {{ toastActionLabel }}
+    </button>
+    <button type="button" class="toast-close" (click)="dismissToast()" aria-label="Dismiss">
+      <i class="bi bi-x-lg"></i>
+    </button>
+  </div>
+
+  <div class="shell">
+    <header class="masthead">
+      <div class="identity">
+        <div class="avatar" aria-hidden="true">{{ initials }}</div>
+        <div class="identity-copy">
+          <h1>{{ timeOfDayGreeting }}, {{ greetingName }}</h1>
+          <p *ngIf="hasWorkouts">
+            {{ completedToday }} done today · {{ plannedAhead }} planned · {{ streak }} day streak
+          </p>
+          <p *ngIf="!hasWorkouts">Log your first session to start building your history.</p>
+        </div>
+      </div>
+
+      <div class="masthead-actions">
+        <div class="live-telemetry-badge" [class.is-live]="timerRunning">
+          <span class="live-pulse-dot"></span>
+          <span class="live-label">{{ timerRunning ? 'ACTIVE SESSION' : 'SENSORS ONLINE' }}</span>
+          <span class="live-clock">{{ currentTimeDisplay }}</span>
+        </div>
+        <button type="button" class="ghost" (click)="openSettingsModal()">
+          <i class="bi bi-sliders"></i> Goals
+        </button>
+        <button type="button" class="solid" (click)="openWorkoutModal()">
+          <i class="bi bi-plus-lg"></i> Log session
+        </button>
+      </div>
+    </header>
+
+    <section class="stats" aria-label="Today at a glance">
+      <article class="stat stat-heart">
+        <div class="stat-head">
+          <span>Live heart rate</span>
+          <i class="bi bi-heart-pulse-fill heart-pulse-icon" [class.is-active]="timerRunning"></i>
+        </div>
+        <p class="stat-figure">{{ heartRate }}<em>BPM</em></p>
+        <div class="ecg-box">
+          <svg viewBox="0 0 120 30" class="ecg-svg">
+            <path [attr.d]="ecgSvgPath" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <p class="stat-foot">{{ heartRateZone }} · {{ liveBurnRate }} kcal/min</p>
+      </article>
+
+      <article class="stat stat-lead">
+        <div class="stat-head">
+          <span>Calories burned</span>
+          <i class="bi bi-fire"></i>
+        </div>
+        <p class="stat-figure">{{ todayCalories }}<em>/ {{ settings.calorieGoal }} kcal</em></p>
+        <div class="meter"><span class="fill fill-pink" [style.width.%]="caloriePct"></span></div>
+        <p class="stat-foot">{{ caloriePct }}% of today's goal</p>
+      </article>
+
+      <article class="stat">
+        <div class="stat-head">
+          <span>Active minutes</span>
+          <i class="bi bi-activity"></i>
+        </div>
+        <p class="stat-figure">{{ todayMinutes }}<em>/ {{ settings.minutesGoal }} min</em></p>
+        <div class="meter"><span class="fill fill-blue" [style.width.%]="minutesPct"></span></div>
+        <p class="stat-foot">{{ minutesPct }}% of today's goal</p>
+      </article>
+
+      <article class="stat">
+        <div class="stat-head">
+          <span>Hydration</span>
+          <i class="bi bi-droplet-half"></i>
+        </div>
+        <p class="stat-figure">
+          {{ formatLitres(todayWaterMl) }}<em>/ {{ formatLitres(settings.waterGoalMl) }} L</em>
+        </p>
+        <div class="meter"><span class="fill fill-cyan" [style.width.%]="waterPct"></span></div>
+        <p class="stat-foot">{{ waterPct }}% of today's goal</p>
+      </article>
+
+      <article class="stat">
+        <div class="stat-head">
+          <span>Current streak</span>
+          <i class="bi bi-lightning-charge"></i>
+        </div>
+        <p class="stat-figure">{{ streak }}<em>{{ streak === 1 ? 'day' : 'days' }}</em></p>
+        <p class="stat-foot stat-foot-tall">
+          {{ weekSessions }} sessions and {{ weekCalories }} kcal in the last 7 days
+        </p>
+      </article>
+    </section>
+
+    <div class="dash-quick-row">
+      <div class="ai-coach-banner">
+        <div class="ai-coach-icon"><i class="bi bi-robot"></i></div>
+        <div class="ai-coach-copy">
+          <strong>AI Fitness Coach Insights</strong>
+          <p>{{ aiCoachAdvice }}</p>
+        </div>
+      </div>
+
+      <div class="quick-presets">
+        <span class="preset-label">Quick Log:</span>
+        <button type="button" class="preset-chip" (click)="quickLogPreset('30m HIIT Blast', 'HIIT', 30, 320)">
+          <i class="bi bi-lightning-charge"></i> 30m HIIT
+        </button>
+        <button type="button" class="preset-chip" (click)="quickLogPreset('45m Power Lift', 'Strength', 45, 380)">
+          <i class="bi bi-bar-chart-line"></i> 45m Lift
+        </button>
+        <button type="button" class="preset-chip" (click)="quickLogPreset('5km Tempo Run', 'Running', 25, 290)">
+          <i class="bi bi-person-walking"></i> 5km Run
+        </button>
+        <button type="button" class="preset-chip" (click)="quickLogPreset('20m Evening Yoga', 'Yoga', 20, 110)">
+          <i class="bi bi-heart-pulse"></i> 20m Yoga
+        </button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="column">
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>This week</h2>
+              <p>Completed sessions only, measured against your daily calorie goal.</p>
+            </div>
+          </div>
+
+          <div class="chart" role="img" aria-label="Calories burned over the last seven days">
+            <div class="chart-row" *ngFor="let day of weekBars; trackBy: trackByKey">
+              <div class="chart-track">
+                <div class="chart-bar" [class.is-today]="day.isToday" [class.is-hit]="day.hit"
+                  [style.height.%]="day.height" [attr.title]="day.calories + ' kcal, ' + day.minutes + ' min'"></div>
+              </div>
+              <span class="chart-value">{{ day.calories || '—' }}</span>
+              <span class="chart-label" [class.is-today]="day.isToday">{{ day.label }}</span>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Session history</h2>
+              <p>{{ visible.length }} of {{ workouts.length }} sessions shown.</p>
+            </div>
+            <button type="button" class="solid compact" (click)="openWorkoutModal()">Log session</button>
+          </div>
+
+          <div class="filters" *ngIf="hasWorkouts">
+            <div class="field-search">
+              <i class="bi bi-search"></i>
+              <input type="search" [(ngModel)]="search" (ngModelChange)="applyFilters()"
+                placeholder="Search sessions and notes" aria-label="Search sessions" />
+            </div>
+            <select [(ngModel)]="categoryFilter" (ngModelChange)="applyFilters()" aria-label="Filter by category">
+              <option value="All">All types</option>
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+            <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()" aria-label="Filter by status">
+              <option value="All">All statuses</option>
+              <option value="Completed">Completed</option>
+              <option value="Planned">Planned</option>
+            </select>
+            <select [(ngModel)]="sortKey" (ngModelChange)="applyFilters()" aria-label="Sort sessions">
+              <option value="recent">Newest first</option>
+              <option value="calories">Most calories</option>
+              <option value="minutes">Longest</option>
+            </select>
+            <button *ngIf="filtersActive" type="button" class="ghost compact" (click)="clearFilters()">
+              Clear
+            </button>
+          </div>
+
+          <div class="table-scroll" *ngIf="visible.length">
+            <table class="log">
+              <thead>
+                <tr>
+                  <th scope="col">Session</th>
+                  <th scope="col">When</th>
+                  <th scope="col">Time</th>
+                  <th scope="col">Burn</th>
+                  <th scope="col">Status</th>
+                  <th scope="col"><span class="sr-only">Actions</span></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let w of visible; trackBy: trackById">
+                  <td>
+                    <div class="session">
+                      <span class="session-icon"><i class="bi" [ngClass]="iconFor(w.category)"></i></span>
+                      <span class="session-copy">
+                        <strong>{{ w.title }}</strong>
+                        <small>{{ w.category }}<span *ngIf="w.notes"> · {{ w.notes }}</span></small>
+                      </span>
+                    </div>
+                  </td>
+                  <td class="muted">{{ formatWhen(w.startedAt) }}</td>
+                  <td>{{ w.minutes }} min</td>
+                  <td class="burn">{{ w.calories }} kcal</td>
+                  <td>
+                    <button type="button" class="pill" [class.pill-done]="w.status === 'Completed'"
+                      [class.pill-planned]="w.status === 'Planned'" (click)="toggleStatus(w)">
+                      {{ w.status }}
+                    </button>
+                  </td>
+                  <td>
+                    <div class="row-actions">
+                      <button type="button" (click)="openWorkoutModal(w)" title="Edit session">
+                        <i class="bi bi-pencil"></i>
+                      </button>
+                      <button type="button" (click)="duplicateWorkout(w)" title="Repeat today">
+                        <i class="bi bi-arrow-repeat"></i>
+                      </button>
+                      <button type="button" class="danger" (click)="deleteWorkout(w)" title="Delete session">
+                        <i class="bi bi-trash3"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="blank" *ngIf="!visible.length && hasWorkouts">
+            <i class="bi bi-funnel"></i>
+            <p>No sessions match these filters.</p>
+            <button type="button" class="ghost compact" (click)="clearFilters()">Clear filters</button>
+          </div>
+
+          <div class="blank" *ngIf="!hasWorkouts">
+            <i class="bi bi-clipboard-plus"></i>
+            <p>Your history is empty. Log a session or time one live to fill this in.</p>
+            <button type="button" class="solid compact" (click)="openWorkoutModal()">Log your first session</button>
+          </div>
+        </section>
+      </div>
+
+      <aside class="column">
+        <section class="panel timer-panel">
+          <div class="panel-head">
+            <div>
+              <h2>Live timer</h2>
+              <p>Time a session now, then save it straight to your log.</p>
+            </div>
+          </div>
+
+          <p class="clock" [class.is-live]="timerRunning">{{ formatClock(elapsedMs) }}</p>
+
+          <div class="timer-actions">
+            <button type="button" class="solid compact wide" (click)="toggleTimer()">
+              <i class="bi" [ngClass]="timerRunning ? 'bi-pause-fill' : 'bi-play-fill'"></i>
+              {{ timerRunning ? 'Pause' : 'Start' }}
+            </button>
+            <button type="button" class="ghost compact" (click)="addLap()" [disabled]="elapsedMs === 0">Lap</button>
+            <button type="button" class="ghost compact" (click)="resetTimer()" [disabled]="elapsedMs === 0">
+              Reset
+            </button>
+          </div>
+
+          <button type="button" class="ghost compact wide save-timed" (click)="logTimedSession()"
+            [disabled]="elapsedMs < 1000">
+            Save as session
+          </button>
+
+          <ul class="laps" *ngIf="laps.length">
+            <li *ngFor="let lap of laps; let i = index">
+              <span>Lap {{ laps.length - i }}</span>
+              <span class="lap-time">{{ formatClock(lap) }}</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>Water</h2>
+              <p>{{ formatLitres(todayWaterMl) }} L logged today.</p>
+            </div>
+          </div>
+
+          <div class="water-buttons">
+            <button type="button" class="ghost compact" (click)="addWater(250)">+250 ml</button>
+            <button type="button" class="ghost compact" (click)="addWater(500)">+500 ml</button>
+            <button type="button" class="ghost compact" (click)="addWater(750)">+750 ml</button>
+          </div>
+
+          <div class="water-custom">
+            <input type="number" min="1" [(ngModel)]="customWaterMl" placeholder="Custom ml"
+              aria-label="Custom water amount in millilitres" />
+            <button type="button" class="solid compact" (click)="addCustomWater()">Add</button>
+          </div>
+
+          <button type="button" class="link-btn" (click)="undoLastWater()">Undo last entry</button>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h2>{{ rankName }}</h2>
+              <p *ngIf="nextRankName">{{ caloriesToNextRank }} kcal to {{ nextRankName }}.</p>
+              <p *ngIf="!nextRankName">Top rank reached. {{ lifetimeCalories }} kcal burned in total.</p>
+            </div>
+          </div>
+          <div class="meter"><span class="fill fill-duo" [style.width.%]="rankPct"></span></div>
+          <p class="rank-foot">{{ lifetimeCalories }} kcal logged all time</p>
+        </section>
+
+        <section class="panel" *ngIf="split.length">
+          <div class="panel-head">
+            <div>
+              <h2>Training mix</h2>
+              <p>Where your completed calories come from.</p>
+            </div>
+          </div>
+          <ul class="split">
+            <li *ngFor="let row of split; trackBy: trackByCategory">
+              <div class="split-top">
+                <span><i class="bi" [ngClass]="iconFor(row.category)"></i> {{ row.category }}</span>
+                <span class="muted">{{ row.share }}%</span>
+              </div>
+              <div class="meter slim"><span class="fill fill-duo" [style.width.%]="row.share"></span></div>
+              <p class="split-foot">{{ row.sessions }} sessions · {{ row.minutes }} min · {{ row.calories }} kcal</p>
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel" *ngIf="hasWorkouts">
+          <div class="panel-head">
+            <div>
+              <h2>Personal bests</h2>
+              <p>Taken from completed sessions.</p>
+            </div>
+          </div>
+          <dl class="bests">
+            <div>
+              <dt>Longest session</dt>
+              <dd>{{ longestSession }} min</dd>
+            </div>
+            <div>
+              <dt>Biggest single burn</dt>
+              <dd>{{ biggestBurn }} kcal</dd>
+            </div>
+            <div>
+              <dt>Best day</dt>
+              <dd>{{ bestDayCalories }} kcal</dd>
+            </div>
+          </dl>
+        </section>
+      </aside>
+    </div>
+  </div>
+
+  <div *ngIf="showWorkoutModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="workoutModalTitle">
+    <div class="sheet">
+      <header class="sheet-head">
+        <h2 id="workoutModalTitle">{{ editingId ? 'Edit session' : 'Log session' }}</h2>
+        <button type="button" class="icon-btn" (click)="closeWorkoutModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+
+      <div class="sheet-body">
+        <p class="form-error" *ngIf="formError">{{ formError }}</p>
+
+        <label class="field">
+          <span>Session name</span>
+          <input type="text" [(ngModel)]="draft.title" placeholder="Tempo run, push day, hill intervals" />
+        </label>
+
+        <div class="field-pair">
+          <label class="field">
+            <span>Type</span>
+            <select [(ngModel)]="draft.category">
+              <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+            </select>
+          </label>
+          <label class="field">
+            <span>Status</span>
+            <select [(ngModel)]="draft.status">
+              <option value="Completed">Completed</option>
+              <option value="Planned">Planned</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-pair">
+          <label class="field">
+            <span>Duration (min)</span>
+            <input type="number" min="1" [(ngModel)]="draft.minutes" placeholder="45" />
+          </label>
+          <label class="field">
+            <span>Calories (kcal)</span>
+            <input type="number" min="0" [(ngModel)]="draft.calories" placeholder="380" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Date and time</span>
+          <input type="datetime-local" [(ngModel)]="draft.startedAt" />
+        </label>
+
+        <label class="field">
+          <span>Notes</span>
+          <input type="text" [(ngModel)]="draft.notes" placeholder="Optional: how it felt, distance, weights" />
+        </label>
+      </div>
+
+      <footer class="sheet-foot">
+        <button type="button" class="ghost" (click)="closeWorkoutModal()">Cancel</button>
+        <button type="button" class="solid" (click)="saveWorkout()">
+          {{ editingId ? 'Save changes' : 'Log session' }}
+        </button>
+      </footer>
+    </div>
+  </div>
+
+  <div *ngIf="showSettingsModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+    <div class="sheet">
+      <header class="sheet-head">
+        <h2 id="settingsModalTitle">Profile and goals</h2>
+        <button type="button" class="icon-btn" (click)="closeSettingsModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+
+      <div class="sheet-body">
+        <label class="field">
+          <span>Your name</span>
+          <input type="text" [(ngModel)]="settingsDraft.name" placeholder="How should the dashboard greet you?" />
+        </label>
+
+        <div class="field-pair">
+          <label class="field">
+            <span>Daily calories (kcal)</span>
+            <input type="number" min="1" [(ngModel)]="settingsDraft.calorieGoal" />
+          </label>
+          <label class="field">
+            <span>Daily active minutes</span>
+            <input type="number" min="1" [(ngModel)]="settingsDraft.minutesGoal" />
+          </label>
+        </div>
+
+        <label class="field">
+          <span>Daily water (ml)</span>
+          <input type="number" min="250" step="50" [(ngModel)]="settingsDraft.waterGoalMl" />
+        </label>
+
+        <div class="data-tools">
+          <button type="button" class="ghost compact" (click)="exportData()">Export log as JSON</button>
+          <button type="button" class="ghost compact danger-btn" (click)="resetEverything()">Clear all history</button>
+        </div>
+      </div>
+
+      <footer class="sheet-foot">
+        <button type="button" class="ghost" (click)="closeSettingsModal()">Cancel</button>
+        <button type="button" class="solid" (click)="saveSettings()">Save goals</button>
+      </footer>
+    </div>
+  </div>
+</main>

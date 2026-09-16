@@ -7,7 +7,7 @@
     <p>Your journey to a healthier, stronger you starts here. AI-driven training, expert nutrition guidance, and an elite community supporting your peak performance.</p>
     <div class="hero-buttons">
       <a routerLink="/signup" class="btn btn-primary btn-lg">Get Started <i class="bi bi-arrow-right ms-1"></i></a>
-      <a routerLink="/services" class="btn btn-outline-light btn-lg">Explore Services</a>
+      <button type="button" (click)="scrollToContact()" class="btn btn-outline-light btn-lg">Contact Me <i class="bi bi-whatsapp ms-1"></i></button>
     </div>
   </div>
 
@@ -23,3 +23,8 @@
     </div>
   </div>
 </section>
+
+<div id="contact" class="landing-contact-section">
+  <app-contact></app-contact>
+</div>
+

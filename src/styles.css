@@ -134,12 +134,15 @@ h1, h2, h3, h4, h5, h6 {
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 8px 25px -5px var(--pink-glow);
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  white-space: nowrap !important;
+  min-width: fit-content !important;
   gap: 0.5rem;
   text-decoration: none;
 }
+
 
 .btn-primary-gradient:hover:not(:disabled) {
   transform: translateY(-2px);

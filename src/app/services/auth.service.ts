@@ -44,19 +44,34 @@ export class AuthService {
     return this.authReady;
   }
 
+  private readonly userNameSubject = new BehaviorSubject<string | null>(this.getStoredUserName());
+  readonly userName$ = this.userNameSubject.asObservable();
+
   get currentUserName(): string | null {
-    const user = this.currentUser;
+    return this.userNameSubject.value || this.getStoredUserName();
+  }
+
+  private getStoredUserName(): string | null {
+    const user = this.auth.currentUser;
     if (user?.displayName) {
       return user.displayName;
     }
-
     try {
+      const storedName = localStorage.getItem('trimfit_user_name');
+      if (storedName && storedName.trim()) return storedName.trim();
+
       const profile = JSON.parse(localStorage.getItem(this.profileStorageKey) || 'null') as { name?: string } | null;
-      return profile?.name || user?.email?.split('@')[0] || null;
+      if (profile?.name && profile.name.trim()) return profile.name.trim();
+
+      const settings = JSON.parse(localStorage.getItem('trimfit_settings') || '{}');
+      if (settings?.name && settings.name.trim()) return settings.name.trim();
+
+      return user?.email?.split('@')[0] || null;
     } catch {
       return user?.email?.split('@')[0] || null;
     }
   }
+
 
   async signIn(email: string, password: string): Promise<UserCredential> {
     const cleanEmail = email.trim().toLowerCase();
@@ -106,13 +121,17 @@ export class AuthService {
   }
 
   private saveProfileName(name: string, email: string): void {
+    if (!name || !name.trim()) return;
+    const cleanName = name.trim();
     try {
-      localStorage.setItem(this.profileStorageKey, JSON.stringify({ name: name.trim(), email: email.toLowerCase() }));
+      localStorage.setItem('trimfit_user_name', cleanName);
+      localStorage.setItem(this.profileStorageKey, JSON.stringify({ name: cleanName, email: email.toLowerCase() }));
       const settings = JSON.parse(localStorage.getItem('trimfit_settings') || '{}');
-      settings.name = name.trim();
+      settings.name = cleanName;
       localStorage.setItem('trimfit_settings', JSON.stringify(settings));
+      this.userNameSubject.next(cleanName);
     } catch {
-      // LocalStorage error fallback
+      this.userNameSubject.next(cleanName);
     }
   }
 }

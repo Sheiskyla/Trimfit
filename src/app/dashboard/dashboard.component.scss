@@ -1127,3 +1127,392 @@ table.log {
     background: rgba(0, 0, 0, 0.2);
   }
 }
+
+/* Streak Badge Header */
+.streak-badge-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  background: rgba(245, 158, 11, 0.15);
+  border: 1px solid rgba(245, 158, 11, 0.4);
+  border-radius: 50px;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #fbbf24;
+}
+
+/* Interactive 8-Exercise Library */
+.exercise-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.exercise-card {
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 18px;
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 0.85rem;
+  transition: all 0.25s ease;
+
+  &:hover {
+    border-color: rgba(236, 72, 153, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(236, 72, 153, 0.18);
+  }
+
+  .ex-card-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .ex-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: rgba(236, 72, 153, 0.15);
+      color: #ec4899;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+    }
+
+    .ex-cat-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.25rem 0.65rem;
+      border-radius: 50px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .ex-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+  }
+
+  .ex-desc {
+    font-size: 0.85rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  .ex-meta {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.78rem;
+    color: #cbd5e1;
+    padding-top: 0.5rem;
+    border-top: 1px dashed rgba(255, 255, 255, 0.08);
+  }
+
+  .btn-start-ex {
+    width: 100%;
+    padding: 0.65rem;
+    background: linear-gradient(135deg, #ec4899 0%, #3b82f6 100%);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      background: linear-gradient(135deg, #f43f5e 0%, #2563eb 100%);
+      transform: scale(1.02);
+      box-shadow: 0 6px 20px rgba(236, 72, 153, 0.4);
+    }
+  }
+}
+
+/* Active Workout Focus Modal Overlay */
+.active-workout-sheet {
+  max-width: 540px !important;
+}
+
+.active-ex-head {
+  .active-ex-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #ec4899, #3b82f6);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+  }
+}
+
+.active-workout-clock {
+  font-family: 'Outfit', sans-serif;
+  font-size: 3.8rem;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: #fff;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 20px;
+  padding: 1rem 1.5rem;
+  display: inline-block;
+  margin: 0 auto;
+  box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.5);
+
+  &.is-running {
+    color: #ec4899;
+    border-color: rgba(236, 72, 153, 0.5);
+    box-shadow: 0 0 30px rgba(236, 72, 153, 0.25);
+  }
+}
+
+.active-burn-counter {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background: rgba(239, 68, 68, 0.12);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  border-radius: 50px;
+
+  .fire-icon { font-size: 1.2rem; }
+  .burned-num { font-size: 1.3rem; font-weight: 900; color: #ef4444; }
+  .burned-label { font-size: 0.72rem; font-weight: 800; color: #fca5a5; letter-spacing: 0.5px; }
+}
+
+.rest-break-box {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 16px;
+  padding: 1.25rem;
+
+  .rest-break-badge {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: #60a5fa;
+    letter-spacing: 1px;
+  }
+  .break-clock {
+    font-size: 2.2rem;
+    font-weight: 900;
+    color: #fff;
+    margin: 0.25rem 0;
+  }
+}
+
+.active-controls-row {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+
+  .btn-ctrl {
+    flex: 1;
+    padding: 0.85rem;
+    border-radius: 14px;
+    border: none;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: 0.92rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+
+    &.btn-pause-resume {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      &:hover { background: rgba(255, 255, 255, 0.2); }
+    }
+
+    &.btn-break {
+      background: rgba(59, 130, 246, 0.2);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.4);
+      &:hover { background: #3b82f6; color: #fff; }
+    }
+
+    &.btn-complete {
+      background: #22c55e;
+      color: #fff;
+      &:hover { background: #16a34a; box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4); }
+    }
+  }
+}
+
+/* BMI Calculator Widget */
+.bmi-inputs {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bmi-result-card {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  padding: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+
+  .bmi-value-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(236, 72, 153, 0.15);
+    border: 1px solid rgba(236, 72, 153, 0.3);
+    padding: 0.65rem 1rem;
+    border-radius: 14px;
+    min-width: 80px;
+
+    .bmi-number {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.8rem;
+      font-weight: 900;
+      color: #ec4899;
+    }
+    .bmi-label {
+      font-size: 0.65rem;
+      font-weight: 800;
+      color: #cbd5e1;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  .bmi-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .bmi-category-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 50px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      align-self: flex-start;
+
+      &.badge-cyan { background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4); }
+      &.badge-success { background: rgba(34, 197, 94, 0.2); color: #4ade80; border: 1px solid rgba(34, 197, 94, 0.4); }
+      &.badge-warning { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); }
+      &.badge-danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.4); }
+    }
+
+    .ideal-range-text {
+      font-size: 0.82rem;
+      color: #94a3b8;
+      margin: 0;
+    }
+  }
+}
+
+/* Spotify Quick Player Widget */
+.spotify-tabs {
+  display: flex;
+  gap: 0.5rem;
+
+  .spotify-tab {
+    flex: 1;
+    padding: 0.55rem 0.5rem;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #94a3b8;
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.3rem;
+
+    &.active {
+      background: rgba(30, 215, 96, 0.15);
+      border-color: #1ed760;
+      color: #1ed760;
+    }
+
+    &:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  }
+}
+
+.spotify-tag-banner {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #1ed760;
+  letter-spacing: 0.5px;
+}
+
+.spotify-iframe {
+  border-radius: 14px;
+  background: #121212;
+}
+
+.btn-spotify-app {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.6rem;
+  background: #1ed760;
+  color: #000;
+  font-family: 'Outfit', sans-serif;
+  font-weight: 800;
+  font-size: 0.85rem;
+  border-radius: 12px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #1fdf64;
+    color: #000;
+    transform: translateY(-1px);
+  }
+}
+
+.btn-retake {
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  color: #60a5fa;
+  padding: 0.3rem 0.65rem;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+
+  &:hover {
+    background: #3b82f6;
+    color: #fff;
+  }
+}
+

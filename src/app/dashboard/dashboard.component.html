@@ -2,6 +2,7 @@
   <div class="aura aura-a"></div>
   <div class="aura aura-b"></div>
 
+  <!-- Toast Notification -->
   <div *ngIf="toastText" class="toast" role="status">
     <i class="bi bi-check2-circle"></i>
     <span class="toast-text">{{ toastText }}</span>
@@ -14,38 +15,45 @@
   </div>
 
   <div class="shell">
+    <!-- Header Masthead -->
     <header class="masthead">
       <div class="identity">
         <div class="avatar" aria-hidden="true">{{ initials }}</div>
         <div class="identity-copy">
-          <h1>{{ timeOfDayGreeting }}, {{ greetingName }}</h1>
+          <div class="d-flex align-items-center gap-2 flex-wrap">
+            <h1>{{ timeOfDayGreeting }}, {{ greetingName }}</h1>
+            <span class="streak-badge-pill">
+              <i class="bi bi-fire text-warning"></i> {{ streak }} Day Streak
+            </span>
+          </div>
           <p *ngIf="hasWorkouts">
-            {{ completedToday }} done today · {{ plannedAhead }} planned · {{ streak }} day streak
+            {{ completedToday }} done today · {{ plannedAhead }} planned · 🔥 {{ streak }} day streak maintained
           </p>
-          <p *ngIf="!hasWorkouts">Log your first session to start building your history.</p>
+          <p *ngIf="!hasWorkouts">Log your first session or start an exercise below to start building your streak!</p>
         </div>
       </div>
 
       <div class="masthead-actions">
-        <div class="live-telemetry-badge" [class.is-live]="timerRunning">
+        <div class="live-telemetry-badge" [class.is-live]="timerRunning || activeTimerRunning">
           <span class="live-pulse-dot"></span>
-          <span class="live-label">{{ timerRunning ? 'ACTIVE SESSION' : 'SENSORS ONLINE' }}</span>
+          <span class="live-label">{{ (timerRunning || activeTimerRunning) ? 'ACTIVE WORKOUT' : 'SENSORS ONLINE' }}</span>
           <span class="live-clock">{{ currentTimeDisplay }}</span>
         </div>
         <button type="button" class="ghost" (click)="openSettingsModal()">
           <i class="bi bi-sliders"></i> Goals
         </button>
         <button type="button" class="solid" (click)="openWorkoutModal()">
-          <i class="bi bi-plus-lg"></i> Log session
+          <i class="bi bi-plus-lg"></i> Log Custom
         </button>
       </div>
     </header>
 
+    <!-- Top Telemetry Stats Grid -->
     <section class="stats" aria-label="Today at a glance">
       <article class="stat stat-heart">
         <div class="stat-head">
           <span>Live heart rate</span>
-          <i class="bi bi-heart-pulse-fill heart-pulse-icon" [class.is-active]="timerRunning"></i>
+          <i class="bi bi-heart-pulse-fill heart-pulse-icon" [class.is-active]="timerRunning || activeTimerRunning"></i>
         </div>
         <p class="stat-figure">{{ heartRate }}<em>BPM</em></p>
         <div class="ecg-box">
@@ -90,16 +98,17 @@
 
       <article class="stat">
         <div class="stat-head">
-          <span>Current streak</span>
-          <i class="bi bi-lightning-charge"></i>
+          <span>Day streak</span>
+          <i class="bi bi-lightning-charge-fill text-warning"></i>
         </div>
-        <p class="stat-figure">{{ streak }}<em>{{ streak === 1 ? 'day' : 'days' }}</em></p>
+        <p class="stat-figure">🔥 {{ streak }}<em>{{ streak === 1 ? 'day' : 'days' }}</em></p>
         <p class="stat-foot stat-foot-tall">
-          {{ weekSessions }} sessions and {{ weekCalories }} kcal in the last 7 days
+          {{ weekSessions }} sessions and {{ weekCalories }} kcal burned this week
         </p>
       </article>
     </section>
 
+    <!-- AI Coach & Quick Presets -->
     <div class="dash-quick-row">
       <div class="ai-coach-banner">
         <div class="ai-coach-icon"><i class="bi bi-robot"></i></div>
@@ -108,31 +117,46 @@
           <p>{{ aiCoachAdvice }}</p>
         </div>
       </div>
-
-      <div class="quick-presets">
-        <span class="preset-label">Quick Log:</span>
-        <button type="button" class="preset-chip" (click)="quickLogPreset('30m HIIT Blast', 'HIIT', 30, 320)">
-          <i class="bi bi-lightning-charge"></i> 30m HIIT
-        </button>
-        <button type="button" class="preset-chip" (click)="quickLogPreset('45m Power Lift', 'Strength', 45, 380)">
-          <i class="bi bi-bar-chart-line"></i> 45m Lift
-        </button>
-        <button type="button" class="preset-chip" (click)="quickLogPreset('5km Tempo Run', 'Running', 25, 290)">
-          <i class="bi bi-person-walking"></i> 5km Run
-        </button>
-        <button type="button" class="preset-chip" (click)="quickLogPreset('20m Evening Yoga', 'Yoga', 20, 110)">
-          <i class="bi bi-heart-pulse"></i> 20m Yoga
-        </button>
-      </div>
     </div>
 
+    <!-- Main Dashboard Grid Layout -->
     <div class="grid">
+      <!-- Left Main Column -->
       <div class="column">
+        <!-- Interactive 8-Exercise Library Section -->
+        <section class="panel exercise-library-panel">
+          <div class="panel-head">
+            <div>
+              <h2><i class="bi bi-collection-play me-2 text-pink"></i> Interactive Exercise Library</h2>
+              <p>Select any of the 8 workouts below to launch the live focus timer & calorie burn tracker.</p>
+            </div>
+          </div>
+
+          <div class="exercise-grid">
+            <div *ngFor="let ex of defaultExercises" class="exercise-card">
+              <div class="ex-card-head">
+                <span class="ex-icon"><i class="bi" [ngClass]="ex.icon"></i></span>
+                <span class="ex-cat-badge">{{ ex.category }}</span>
+              </div>
+              <h3 class="ex-title">{{ ex.title }}</h3>
+              <p class="ex-desc">{{ ex.description }}</p>
+              <div class="ex-meta">
+                <span><i class="bi bi-fire text-danger me-1"></i>~{{ ex.calPerMin }} kcal/min</span>
+                <span><i class="bi bi-bullseye me-1"></i>{{ ex.targetMuscles }}</span>
+              </div>
+              <button type="button" class="btn-start-ex" (click)="startExerciseTimer(ex)">
+                <i class="bi bi-play-fill me-1"></i> Start Exercise
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7-Day Weekly Chart -->
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h2>This week</h2>
-              <p>Completed sessions only, measured against your daily calorie goal.</p>
+              <h2>This week's progress</h2>
+              <p>Completed sessions measured against your daily calorie goal.</p>
             </div>
           </div>
 
@@ -148,50 +172,50 @@
           </div>
         </section>
 
+        <!-- Recent Workout Routine Section -->
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h2>Session history</h2>
-              <p>{{ visible.length }} of {{ workouts.length }} sessions shown.</p>
+              <h2><i class="bi bi-clock-history me-2 text-blue"></i> Recent Workout Routine</h2>
+              <p>{{ visible.length }} of {{ workouts.length }} sessions logged in your history.</p>
             </div>
-            <button type="button" class="solid compact" (click)="openWorkoutModal()">Log session</button>
+            <button type="button" class="solid compact" (click)="openWorkoutModal()">
+              <i class="bi bi-plus-lg me-1"></i> Add Custom Exercise
+            </button>
           </div>
 
           <div class="filters" *ngIf="hasWorkouts">
             <div class="field-search">
               <i class="bi bi-search"></i>
-              <input type="search" [(ngModel)]="search" (ngModelChange)="applyFilters()"
-                placeholder="Search sessions and notes" aria-label="Search sessions" />
+              <input type="search" [(ngModel)]="search" placeholder="Search routines..." aria-label="Search sessions" />
             </div>
-            <select [(ngModel)]="categoryFilter" (ngModelChange)="applyFilters()" aria-label="Filter by category">
-              <option value="All">All types</option>
+            <select [(ngModel)]="categoryFilter" aria-label="Filter by category">
+              <option value="All">All Categories</option>
               <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
             </select>
-            <select [(ngModel)]="statusFilter" (ngModelChange)="applyFilters()" aria-label="Filter by status">
-              <option value="All">All statuses</option>
+            <select [(ngModel)]="statusFilter" aria-label="Filter by status">
+              <option value="All">All Statuses</option>
               <option value="Completed">Completed</option>
               <option value="Planned">Planned</option>
             </select>
-            <select [(ngModel)]="sortKey" (ngModelChange)="applyFilters()" aria-label="Sort sessions">
+            <select [(ngModel)]="sortKey" aria-label="Sort sessions">
               <option value="recent">Newest first</option>
               <option value="calories">Most calories</option>
               <option value="minutes">Longest</option>
             </select>
-            <button *ngIf="filtersActive" type="button" class="ghost compact" (click)="clearFilters()">
-              Clear
-            </button>
+            <button *ngIf="filtersActive" type="button" class="ghost compact" (click)="clearFilters()">Clear</button>
           </div>
 
           <div class="table-scroll" *ngIf="visible.length">
             <table class="log">
               <thead>
                 <tr>
-                  <th scope="col">Session</th>
+                  <th scope="col">Routine</th>
                   <th scope="col">When</th>
-                  <th scope="col">Time</th>
-                  <th scope="col">Burn</th>
+                  <th scope="col">Duration</th>
+                  <th scope="col">Calories</th>
                   <th scope="col">Status</th>
-                  <th scope="col"><span class="sr-only">Actions</span></th>
+                  <th scope="col">Actions</th>
                 </tr>
               </thead>
               <tbody>
@@ -216,11 +240,11 @@
                   </td>
                   <td>
                     <div class="row-actions">
+                      <button type="button" class="btn-retake" (click)="retakeWorkout(w)" title="Retake Workout Timer">
+                        <i class="bi bi-play-circle-fill"></i> Retake
+                      </button>
                       <button type="button" (click)="openWorkoutModal(w)" title="Edit session">
                         <i class="bi bi-pencil"></i>
-                      </button>
-                      <button type="button" (click)="duplicateWorkout(w)" title="Repeat today">
-                        <i class="bi bi-arrow-repeat"></i>
                       </button>
                       <button type="button" class="danger" (click)="deleteWorkout(w)" title="Delete session">
                         <i class="bi bi-trash3"></i>
@@ -240,18 +264,94 @@
 
           <div class="blank" *ngIf="!hasWorkouts">
             <i class="bi bi-clipboard-plus"></i>
-            <p>Your history is empty. Log a session or time one live to fill this in.</p>
-            <button type="button" class="solid compact" (click)="openWorkoutModal()">Log your first session</button>
+            <p>Your routine history is currently empty. Start an exercise above or log a custom session.</p>
+            <button type="button" class="solid compact" (click)="openWorkoutModal()">Log First Routine</button>
           </div>
         </section>
       </div>
 
+      <!-- Right Sidebar Column -->
       <aside class="column">
+        <!-- BMI & Ideal Weight Calculator Widget -->
+        <section class="panel bmi-widget-panel">
+          <div class="panel-head">
+            <div>
+              <h2><i class="bi bi-calculator me-2 text-pink"></i> BMI Calculator</h2>
+              <p>Calculate Body Mass Index & view your ideal weight range.</p>
+            </div>
+          </div>
+
+          <div class="bmi-inputs">
+            <div class="field">
+              <span>Height (cm)</span>
+              <input type="number" min="100" max="250" [(ngModel)]="bmiHeightCm" (ngModelChange)="calculateBmi()" placeholder="175">
+            </div>
+            <div class="field">
+              <span>Weight (kg)</span>
+              <input type="number" min="30" max="300" [(ngModel)]="bmiWeightKg" (ngModelChange)="calculateBmi()" placeholder="70">
+            </div>
+          </div>
+
+          <div class="bmi-result-card" *ngIf="computedBmi">
+            <div class="bmi-value-box">
+              <span class="bmi-number">{{ computedBmi }}</span>
+              <span class="bmi-label">BMI SCORE</span>
+            </div>
+            <div class="bmi-meta">
+              <span class="bmi-category-badge" [ngClass]="bmiCategoryBadgeClass">
+                {{ bmiCategory }}
+              </span>
+              <p class="ideal-range-text">
+                <i class="bi bi-check-circle-fill text-success me-1"></i>
+                Ideal Range: <strong>{{ bmiIdealMinKg }} kg – {{ bmiIdealMaxKg }} kg</strong>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Workout Music / Spotify Quick Player Widget -->
+        <section class="panel spotify-widget-panel">
+          <div class="panel-head">
+            <div>
+              <h2><i class="bi bi-spotify me-2 text-success"></i> Workout Music Player</h2>
+              <p>Power your workouts with curated gym hype beats.</p>
+            </div>
+          </div>
+
+          <div class="spotify-tabs">
+            <button *ngFor="let p of spotifyPresets" type="button"
+              class="spotify-tab" [class.active]="selectedSpotifyPreset.id === p.id"
+              (click)="selectSpotifyPreset(p.id)">
+              <i class="bi" [ngClass]="p.icon"></i> {{ p.name }}
+            </button>
+          </div>
+
+          <div class="spotify-player-wrapper mt-3">
+            <div class="spotify-tag-banner mb-2">
+              <span>{{ selectedSpotifyPreset.tag }}</span>
+            </div>
+            <iframe
+              [src]="getSafeSpotifyUrl(selectedSpotifyPreset.embedUrl)"
+              width="100%"
+              height="152"
+              frameBorder="0"
+              allowfullscreen=""
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+              loading="lazy"
+              class="spotify-iframe">
+            </iframe>
+            <a [href]="selectedSpotifyPreset.directUrl" target="_blank" rel="noopener noreferrer" class="btn-spotify-app mt-2">
+              <i class="bi bi-spotify me-2"></i> Open Playlist in Spotify App
+            </a>
+          </div>
+        </section>
+
+        <!-- Quick Live Stopwatch Section -->
         <section class="panel timer-panel">
           <div class="panel-head">
             <div>
-              <h2>Live timer</h2>
-              <p>Time a session now, then save it straight to your log.</p>
+              <h2>Quick Live Timer</h2>
+              <p>Free stopwatch for open tracking.</p>
             </div>
           </div>
 
@@ -263,28 +363,19 @@
               {{ timerRunning ? 'Pause' : 'Start' }}
             </button>
             <button type="button" class="ghost compact" (click)="addLap()" [disabled]="elapsedMs === 0">Lap</button>
-            <button type="button" class="ghost compact" (click)="resetTimer()" [disabled]="elapsedMs === 0">
-              Reset
-            </button>
+            <button type="button" class="ghost compact" (click)="resetTimer()" [disabled]="elapsedMs === 0">Reset</button>
           </div>
 
-          <button type="button" class="ghost compact wide save-timed" (click)="logTimedSession()"
-            [disabled]="elapsedMs < 1000">
+          <button type="button" class="ghost compact wide save-timed" (click)="logTimedSession()" [disabled]="elapsedMs < 1000">
             Save as session
           </button>
-
-          <ul class="laps" *ngIf="laps.length">
-            <li *ngFor="let lap of laps; let i = index">
-              <span>Lap {{ laps.length - i }}</span>
-              <span class="lap-time">{{ formatClock(lap) }}</span>
-            </li>
-          </ul>
         </section>
 
+        <!-- Water Hydration Panel -->
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h2>Water</h2>
+              <h2>Water Hydration</h2>
               <p>{{ formatLitres(todayWaterMl) }} L logged today.</p>
             </div>
           </div>
@@ -295,76 +386,85 @@
             <button type="button" class="ghost compact" (click)="addWater(750)">+750 ml</button>
           </div>
 
-          <div class="water-custom">
-            <input type="number" min="1" [(ngModel)]="customWaterMl" placeholder="Custom ml"
-              aria-label="Custom water amount in millilitres" />
+          <div class="water-custom mt-2">
+            <input type="number" min="1" [(ngModel)]="customWaterMl" placeholder="Custom ml" />
             <button type="button" class="solid compact" (click)="addCustomWater()">Add</button>
           </div>
 
-          <button type="button" class="link-btn" (click)="undoLastWater()">Undo last entry</button>
-        </section>
-
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h2>{{ rankName }}</h2>
-              <p *ngIf="nextRankName">{{ caloriesToNextRank }} kcal to {{ nextRankName }}.</p>
-              <p *ngIf="!nextRankName">Top rank reached. {{ lifetimeCalories }} kcal burned in total.</p>
-            </div>
-          </div>
-          <div class="meter"><span class="fill fill-duo" [style.width.%]="rankPct"></span></div>
-          <p class="rank-foot">{{ lifetimeCalories }} kcal logged all time</p>
-        </section>
-
-        <section class="panel" *ngIf="split.length">
-          <div class="panel-head">
-            <div>
-              <h2>Training mix</h2>
-              <p>Where your completed calories come from.</p>
-            </div>
-          </div>
-          <ul class="split">
-            <li *ngFor="let row of split; trackBy: trackByCategory">
-              <div class="split-top">
-                <span><i class="bi" [ngClass]="iconFor(row.category)"></i> {{ row.category }}</span>
-                <span class="muted">{{ row.share }}%</span>
-              </div>
-              <div class="meter slim"><span class="fill fill-duo" [style.width.%]="row.share"></span></div>
-              <p class="split-foot">{{ row.sessions }} sessions · {{ row.minutes }} min · {{ row.calories }} kcal</p>
-            </li>
-          </ul>
-        </section>
-
-        <section class="panel" *ngIf="hasWorkouts">
-          <div class="panel-head">
-            <div>
-              <h2>Personal bests</h2>
-              <p>Taken from completed sessions.</p>
-            </div>
-          </div>
-          <dl class="bests">
-            <div>
-              <dt>Longest session</dt>
-              <dd>{{ longestSession }} min</dd>
-            </div>
-            <div>
-              <dt>Biggest single burn</dt>
-              <dd>{{ biggestBurn }} kcal</dd>
-            </div>
-            <div>
-              <dt>Best day</dt>
-              <dd>{{ bestDayCalories }} kcal</dd>
-            </div>
-          </dl>
+          <button type="button" class="link-btn mt-2" (click)="undoLastWater()">Undo last entry</button>
         </section>
       </aside>
     </div>
   </div>
 
-  <div *ngIf="showWorkoutModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="workoutModalTitle">
+  <!-- Active Workout Focus Modal / Timer Engine Overlay -->
+  <div *ngIf="activeWorkoutModalOpen" class="overlay active-workout-overlay" role="dialog" aria-modal="true">
+    <div class="sheet active-workout-sheet">
+      <header class="sheet-head active-ex-head">
+        <div class="d-flex align-items-center gap-3">
+          <span class="active-ex-icon"><i class="bi" [ngClass]="currentActiveExercise?.icon || 'bi-activity'"></i></span>
+          <div>
+            <h2>{{ currentActiveExercise?.title }}</h2>
+            <span class="badge bg-secondary">{{ currentActiveExercise?.category }}</span>
+          </div>
+        </div>
+        <button type="button" class="icon-btn" (click)="closeActiveWorkoutModal()" aria-label="Close">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </header>
+
+      <div class="sheet-body text-center py-4">
+        <!-- Rest Break Overlay Banner -->
+        <div *ngIf="activeBreakRunning" class="rest-break-box mb-4">
+          <div class="rest-break-badge">REST & BREAK TIME 🧘</div>
+          <div class="break-clock">{{ breakRemainingSeconds }}s</div>
+          <p>Catch your breath, hydrate, and prepare for your next set!</p>
+          <button type="button" class="btn btn-sm btn-outline-light rounded-pill px-3 mt-1" (click)="skipBreak()">
+            Skip Rest & Resume
+          </button>
+        </div>
+
+        <!-- Active Exercise Clock & Telemetry -->
+        <div class="active-workout-clock" [class.is-running]="activeTimerRunning && !activeBreakRunning">
+          {{ formatSeconds(activeElapsedSeconds) }}
+        </div>
+
+        <div class="active-burn-counter mt-3">
+          <span class="fire-icon">🔥</span>
+          <span class="burned-num">{{ activeBurnedCalories }}</span>
+          <span class="burned-label">ESTIMATED KCAL BURNED</span>
+        </div>
+
+        <p class="ex-target-text mt-3 text-muted">
+          Target Muscles: <strong>{{ currentActiveExercise?.targetMuscles }}</strong>
+        </p>
+
+        <!-- Interactive Workout Controls -->
+        <div class="active-controls-row mt-4">
+          <button type="button" class="btn-ctrl btn-pause-resume" (click)="pauseActiveTimer()">
+            <i class="bi" [ngClass]="activeTimerRunning ? 'bi-pause-fill' : 'bi-play-fill'"></i>
+            <span>{{ activeTimerRunning ? 'Pause' : 'Resume' }}</span>
+          </button>
+
+          <button type="button" class="btn-ctrl btn-break" (click)="takeABreak(30)">
+            <i class="bi bi-cup-hot-fill"></i>
+            <span>Take a Break</span>
+          </button>
+
+          <button type="button" class="btn-ctrl btn-complete" (click)="completeActiveWorkout()">
+            <i class="bi bi-check-lg"></i>
+            <span>Complete Workout</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add / Edit Custom Workout Modal -->
+  <div *ngIf="showWorkoutModal" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <header class="sheet-head">
-        <h2 id="workoutModalTitle">{{ editingId ? 'Edit session' : 'Log session' }}</h2>
+        <h2>{{ editingId ? 'Edit session' : 'Log Custom Routine' }}</h2>
         <button type="button" class="icon-btn" (click)="closeWorkoutModal()" aria-label="Close">
           <i class="bi bi-x-lg"></i>
         </button>
@@ -374,13 +474,13 @@
         <p class="form-error" *ngIf="formError">{{ formError }}</p>
 
         <label class="field">
-          <span>Session name</span>
-          <input type="text" [(ngModel)]="draft.title" placeholder="Tempo run, push day, hill intervals" />
+          <span>Session / Exercise Name</span>
+          <input type="text" [(ngModel)]="draft.title" placeholder="e.g. Morning Sprint, Incline Bench, Core Routine" />
         </label>
 
         <div class="field-pair">
           <label class="field">
-            <span>Type</span>
+            <span>Category</span>
             <select [(ngModel)]="draft.category">
               <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
             </select>
@@ -397,11 +497,11 @@
         <div class="field-pair">
           <label class="field">
             <span>Duration (min)</span>
-            <input type="number" min="1" [(ngModel)]="draft.minutes" placeholder="45" />
+            <input type="number" min="1" [(ngModel)]="draft.minutes" placeholder="30" />
           </label>
           <label class="field">
             <span>Calories (kcal)</span>
-            <input type="number" min="0" [(ngModel)]="draft.calories" placeholder="380" />
+            <input type="number" min="0" [(ngModel)]="draft.calories" placeholder="250" />
           </label>
         </div>
 
@@ -412,23 +512,24 @@
 
         <label class="field">
           <span>Notes</span>
-          <input type="text" [(ngModel)]="draft.notes" placeholder="Optional: how it felt, distance, weights" />
+          <input type="text" [(ngModel)]="draft.notes" placeholder="Optional notes (e.g. weights, sets, pace)" />
         </label>
       </div>
 
       <footer class="sheet-foot">
         <button type="button" class="ghost" (click)="closeWorkoutModal()">Cancel</button>
         <button type="button" class="solid" (click)="saveWorkout()">
-          {{ editingId ? 'Save changes' : 'Log session' }}
+          {{ editingId ? 'Save Changes' : 'Log Routine' }}
         </button>
       </footer>
     </div>
   </div>
 
-  <div *ngIf="showSettingsModal" class="overlay" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle">
+  <!-- Settings & Goals Modal -->
+  <div *ngIf="showSettingsModal" class="overlay" role="dialog" aria-modal="true">
     <div class="sheet">
       <header class="sheet-head">
-        <h2 id="settingsModalTitle">Profile and goals</h2>
+        <h2>Profile and goals</h2>
         <button type="button" class="icon-btn" (click)="closeSettingsModal()" aria-label="Close">
           <i class="bi bi-x-lg"></i>
         </button>
@@ -455,11 +556,6 @@
           <span>Daily water (ml)</span>
           <input type="number" min="250" step="50" [(ngModel)]="settingsDraft.waterGoalMl" />
         </label>
-
-        <div class="data-tools">
-          <button type="button" class="ghost compact" (click)="exportData()">Export log as JSON</button>
-          <button type="button" class="ghost compact danger-btn" (click)="resetEverything()">Clear all history</button>
-        </div>
       </div>
 
       <footer class="sheet-foot">

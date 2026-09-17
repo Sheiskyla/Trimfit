@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -15,6 +15,7 @@ export class SignupComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private auth = inject(AuthService);
+  private cdr = inject(ChangeDetectorRef);
 
   signupForm: FormGroup;
   showPassword = false;
@@ -114,28 +115,39 @@ export class SignupComponent {
     alert(`Signing up with ${provider}... (Simulated Social Auth)`);
   }
 
-  onSubmit(): void {
-    if (this.signupForm.invalid) {
+  async onSubmit(): Promise<void> {
+    if (this.signupForm.invalid || this.isSubmitting) {
       this.signupForm.markAllAsTouched();
       return;
     }
 
     this.isSubmitting = true;
     this.authError = '';
+    this.submitSuccess = false;
+    this.cdr.detectChanges();
 
-    this.auth.signUp(
-      this.emailControl?.value,
-      this.passwordControl?.value,
-      this.fullNameControl?.value
-    ).then(() => {
+    try {
+      await this.auth.signUp(
+        this.emailControl?.value,
+        this.passwordControl?.value,
+        this.fullNameControl?.value
+      );
       this.submitSuccess = true;
-      return this.router.navigate(['/signin']);
-    }).catch((error: { code?: string }) => {
-      this.authError = error.code === 'auth/email-already-in-use'
-        ? 'An account already exists for this email.'
-        : 'We could not create your account. Please try again.';
-    }).finally(() => {
+      this.cdr.detectChanges();
+      setTimeout(() => {
+        this.router.navigate(['/signin']);
+      }, 1000);
+    } catch (error: any) {
+      if (error?.code === 'auth/email-already-in-use') {
+        this.authError = 'An account already exists for this email address.';
+      } else if (error?.code === 'auth/timeout') {
+        this.authError = 'Account creation timed out. Check your connection and try again.';
+      } else {
+        this.authError = error?.message || 'We could not create your account. Please try again.';
+      }
+    } finally {
       this.isSubmitting = false;
-    });
+      this.cdr.detectChanges();
+    }
   }
 }

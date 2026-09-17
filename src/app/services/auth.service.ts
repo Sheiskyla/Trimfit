@@ -92,20 +92,46 @@ export class AuthService {
   async signUp(email: string, password: string, displayName: string): Promise<UserCredential> {
     const cleanEmail = email.trim().toLowerCase();
     const name = displayName.trim();
-    const credential = await createUserWithEmailAndPassword(this.auth, cleanEmail, password);
-    await updateProfile(credential.user, { displayName: name });
-    await credential.user.reload();
+
+    const credential = await Promise.race([
+      createUserWithEmailAndPassword(this.auth, cleanEmail, password),
+      new Promise<never>((_, reject) => {
+        setTimeout(() => reject({
+          code: 'auth/timeout',
+          message: 'Account creation timed out. Check your connection and try again.'
+        }), 8000);
+      })
+    ]);
+
     this.saveProfileName(name, cleanEmail);
 
-    void setDoc(doc(firestore, 'users', credential.user.uid), {
-      displayName: name,
-      email: credential.user.email,
-      createdAt: serverTimestamp()
-    }).catch((error) => {
-      console.warn('Firestore profile save failed; local profile was saved.', error);
-    });
+    try {
+      await updateProfile(credential.user, { displayName: name });
+    } catch (err) {
+      console.warn('Failed to update user profile display name:', err);
+    }
 
-    await signOut(this.auth);
+    try {
+      setDoc(doc(firestore, 'users', credential.user.uid), {
+        displayName: name,
+        email: credential.user.email,
+        createdAt: serverTimestamp()
+      }).catch((error) => {
+        console.warn('Firestore profile save failed; local profile was saved.', error);
+      });
+    } catch (err) {
+      console.warn('Firestore setDoc initialization failed:', err);
+    }
+
+    try {
+      await Promise.race([
+        signOut(this.auth),
+        new Promise<void>((resolve) => setTimeout(resolve, 2000))
+      ]);
+    } catch (err) {
+      console.warn('Sign out post-signup failed or timed out:', err);
+    }
+
     return credential;
   }
 
